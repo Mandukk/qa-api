@@ -3,6 +3,7 @@ require('./config/config.js');
 const app = require('express')();
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const {ObjectID} = require('mongodb');
 
 const {mongoose} = require('./db/mongoose');
 const {Question} = require('./models/question');
@@ -18,8 +19,8 @@ app.post('/ask', (req, res) => {
     question.save().then((questionRes) => {
         res.send(questionRes);
     }).catch(e => {
-        res.status(400).send();
         console.log(e);
+        res.status(400).send();
     })
 });
 
@@ -30,22 +31,44 @@ app.get('/ask', (req, res) => {
         }
         res.send(questions);
     }).catch(e => {
-        res.status(404).send();
         console.log(e);
+        res.status(404).send();
     })
 });
 
 app.get('/ask/:id', (req, res) => {
     let id = req.params.id;
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(400).send();
+    }
     Question.findOne({_id: id}).then(question => {
         if (!question) {
             return res.status(404).send();
         }
         res.send(question);
     }).catch(e => {
-        res.status(404).send();
         console.log(e);
+        res.status(404).send();
     })
+});
+
+app.delete('/ask/:id', (req, res) => {
+    let id = req.params.id;
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(400).send();
+    }
+
+    Question.findOneAndRemove({_id: id}).then(question => {
+        if (!question) {
+            return res.status(404).send();
+        }
+        res.send(question);
+    }).catch(e => {
+        console.log(e);
+        res.status(404).send();
+    });
 });
 
 app.listen(port, () => {
