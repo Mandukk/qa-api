@@ -71,6 +71,31 @@ app.delete('/ask/:id', (req, res) => {
     });
 });
 
+app.patch('/ask/:id', (req, res) => {
+    let id = req.params.id;
+    let body = _.pick(req.body, ['answer']);
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+
+    if (!body.answer) {
+        return res.status(400).send();
+    } else {
+        body.answered = true;
+        body.answeredAt = new Date().getTime();
+    }
+
+    Question.findOneAndUpdate({_id: id}, {$set: body}, {new: true}).then(question => {
+        if (!question) {
+            return res.status(404).send();
+        }
+        res.send(question);
+    }).catch(e => {
+        res.send(404).send();
+    })
+});
+
 app.listen(port, () => {
     console.log(`Started on port ${port}!`);
 });

@@ -8,7 +8,8 @@ let QuestionSchema = new mongoose.Schema({
     },
     answer: {
         type: String,
-        default: null
+        default: null,
+        minlength: 1
     },
     answered: {
         type: Boolean,
