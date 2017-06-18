@@ -1,14 +1,26 @@
 const mongoose = require('mongoose');
 
 let QuestionSchema = new mongoose.Schema({
-    text: {
+    question: {
         type: String,
         required: true,
         maxlength: 140,
     },
     answer: {
         type: String,
-        required: true
+        default: null
+    },
+    answered: {
+        type: Boolean,
+        default: false
+    },
+    createdAt: {
+        type: Number,
+        default: new Date().getTime()
+    },
+    answeredAt: {
+        type: Number,
+        default: null
     }
 });
 

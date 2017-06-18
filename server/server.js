@@ -12,13 +12,22 @@ const port = process.env.PORT;
 app.use(bodyParser.json());
 
 app.post('/ask', (req, res) => {
-    let body = _.pick(req.body, ['text', 'answer']);
+    let body = _.pick(req.body, ['question']);
     let question = new Question(body);
 
     question.save().then((questionRes) => {
         res.send(questionRes);
     }).catch(e => {
-        res.status(400).send(e);
+        res.status(400).send();
+        console.log(e);
+    })
+});
+
+app.get('/ask', (req, res) => {
+    Question.find({}).then(questions => {
+        res.send(questions);
+    }).catch(e => {
+        res.status(404).send();
     })
 });
 
