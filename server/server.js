@@ -25,9 +25,26 @@ app.post('/ask', (req, res) => {
 
 app.get('/ask', (req, res) => {
     Question.find({}).then(questions => {
+        if (!questions) {
+            return res.status(404).send();
+        }
         res.send(questions);
     }).catch(e => {
         res.status(404).send();
+        console.log(e);
+    })
+});
+
+app.get('/ask/:id', (req, res) => {
+    let id = req.params.id;
+    Question.findOne({_id: id}).then(question => {
+        if (!question) {
+            return res.status(404).send();
+        }
+        res.send(question);
+    }).catch(e => {
+        res.status(404).send();
+        console.log(e);
     })
 });
 
