@@ -19,7 +19,6 @@ app.post('/ask', (req, res) => {
     question.save().then((questionRes) => {
         res.send(questionRes);
     }).catch(e => {
-        console.log(e);
         res.status(400).send();
     })
 });
@@ -31,7 +30,6 @@ app.get('/ask', (req, res) => {
         }
         res.send(questions);
     }).catch(e => {
-        console.log(e);
         res.status(404).send();
     })
 });
@@ -48,7 +46,6 @@ app.get('/ask/:id', (req, res) => {
         }
         res.send(question);
     }).catch(e => {
-        console.log(e);
         res.status(404).send();
     })
 });
@@ -66,7 +63,6 @@ app.delete('/ask/:id', (req, res) => {
         }
         res.send(question);
     }).catch(e => {
-        console.log(e);
         res.status(404).send();
     });
 });
@@ -95,6 +91,10 @@ app.patch('/ask/:id', (req, res) => {
         res.send(404).send();
     })
 });
+
+module.exports = {
+    app
+};
 
 app.listen(port, () => {
     console.log(`Started on port ${port}!`);
