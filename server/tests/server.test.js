@@ -86,7 +86,7 @@ describe ('GET /ask/:id', () => {
             .end(done);
     });
     it ('should dont return the question with the wrong id', (done) => {
-        let wrongId = '5946c4caa31afd5035d30987';
+        let wrongId = new ObjectID().toHexString();
         request(app)
             .get(`/ask/${wrongId}`)
             .expect(404)
@@ -99,11 +99,52 @@ describe ('GET /ask/:id', () => {
         let invalidId = '123';
         request(app)
             .get(`/ask/${invalidId}`)
-            .expect(400)
+            .expect(404)
             .expect(res => {
                 expect(res.body.question).toNotExist();
             })
             .end(done);
     });
 });
+
+describe('DELETE /ask/:id', () => {
+    it('should delete the question passing the correct id', (done) => {
+        request(app)
+            .delete(`/ask/${questions[0]._id.toHexString()}`)
+            .expect(200)
+            .expect(res => {
+                expect(res.body.question._id).toBe(questions[0]._id.toHexString());
+                expect(res.body.question.question).toBe(questions[0].question);
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                Question.findById(questions[0]._id).then((question) => {
+                    expect(question).toNotExist();
+                    done();
+                }).catch((e) => done(e));
+            });
+    });
+    it('should return 404 if question not found', (done) => {
+        let wrongId = new ObjectID().toHexString();
+        request(app)
+            .delete(`/ask/${wrongId}`)
+            .expect(404)
+            .expect(res => {
+                expect(res.body.question).toNotExist();
+            })
+            .end(done);
+    });
+    it('should return 404 if send invalid id', (done) => {
+        let invalidId = '123';
+        request(app)
+            .delete(`/ask/${invalidId}`)
+            .expect(404)
+            .expect(res => {
+                expect(res.body.question).toNotExist();
+            })
+            .end(done);
+    })
+})
 

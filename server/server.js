@@ -38,7 +38,7 @@ app.get('/ask/:id', (req, res) => {
     let id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
-        return res.status(400).send();
+        return res.status(404).send();
     }
     Question.findOne({_id: id}).then(question => {
         if (!question) {
@@ -54,14 +54,14 @@ app.delete('/ask/:id', (req, res) => {
     let id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
-        return res.status(400).send();
+        return res.status(404).send();
     }
 
     Question.findOneAndRemove({_id: id}).then(question => {
         if (!question) {
             return res.status(404).send();
         }
-        res.send(question);
+        res.send({question});
     }).catch(e => {
         res.status(404).send();
     });
