@@ -86,7 +86,7 @@ app.patch('/ask/:id', (req, res) => {
         if (!question) {
             return res.status(404).send();
         }
-        res.send(question);
+        res.send({question});
     }).catch(e => {
         res.send(404).send();
     })

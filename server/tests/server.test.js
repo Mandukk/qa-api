@@ -145,6 +145,79 @@ describe('DELETE /ask/:id', () => {
                 expect(res.body.question).toNotExist();
             })
             .end(done);
-    })
-})
+    });
+});
+
+describe('PATCH /ask/:id', () => {
+    it('should update the question', (done) => {
+        let id = questions[0]._id.toHexString();
+        let answer = 'I am fine, thanks!';
+
+        request(app)
+            .patch(`/ask/${id}`)
+            .send({answer})
+            .expect(200)
+            .expect(res => {
+                expect(res.body.question._id).toBe(id);
+                expect(res.body.question.question).toBe(questions[0].question);
+                expect(res.body.question.answer).toBe(answer);
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                Question.findById(id).then(question => {
+                    expect(question.answer).toBe(answer);
+                    expect(question.answered).toBe(true);
+                    expect(question.answeredAt).toNotBe(null);
+                    done();
+                }).catch(e => done(e));
+            });
+    });
+    it('should return 400 if answer does not exist', (done) => {
+        let id = questions[0]._id.toHexString();
+
+        request(app)
+            .patch(`/ask/${id}`)
+            .expect(400)
+            .expect(res => {
+                expect(res.body.question).toNotExist();
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                Question.findById(id).then(question => {
+                    expect(question.answer).toBe(null);
+                    expect(question.answered).toBe(false);
+                    expect(question.answeredAt).toBe(null);
+                    done();
+                }).catch(e => done(e));
+            });
+    });
+    it('should return 404 if pass invalid id', (done) => {
+        let id = '123';
+
+        request(app)
+            .patch(`/ask/${id}`)
+            .expect(404)
+            .expect(res => {
+                expect(res.body.question).toNotExist();
+            })
+            .end(done);
+    });
+    it('should return 404 if pass wrong id', (done) => {
+        let id = new ObjectID().toHexString();
+        let answer = 'I am fine, thanks!';
+
+        request(app)
+            .patch(`/ask/${id}`)
+            .send({answer})
+            .expect(404)
+            .expect(res => {
+                expect(res.body.question).toNotExist();
+            })
+            .end(done);
+    });
+});
 
