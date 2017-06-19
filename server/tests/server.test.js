@@ -4,6 +4,9 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Question} = require('./../models/question');
+const {questions, populateQuestions} = require('./seed/seed');
+
+beforeEach(populateQuestions);
 
 describe('POST /ask', () => {
     it('should create a new question', (done) => {
@@ -45,10 +48,57 @@ describe('POST /ask', () => {
         for (let i = 0; i < 141; i++) {
             questionText += 'a';
         }
-        console.log(questionText.length);
         request(app)
             .post('/ask')
             .send({question: questionText})
+            .expect(400)
+            .expect(res => {
+                expect(res.body.question).toNotExist();
+            })
+            .end(done);
+    });
+});
+
+describe ('GET /ask', () => {
+    it ('should return all the questions', (done) => {
+        request(app)
+            .get('/ask')
+            .expect(200)
+            .expect(res => {
+                expect(res.body.questions.length).toBe(2);
+                for (let i = 0; i < res.body.questions.length; i++){
+                    expect(res.body.questions[i]._id).toBe(questions[i]._id.toHexString());
+                    expect(res.body.questions[i].question).toBe(questions[i].question);
+                }
+            })
+            .end(done);
+    });
+});
+
+describe ('GET /ask/:id', () => {
+    it('should return the question with the correct id', (done) => {
+        request(app)
+            .get(`/ask/${questions[0]._id.toHexString()}`)
+            .expect(200)
+            .expect(res => {
+                expect(res.body.question.question).toBe(questions[0].question);
+            })
+            .end(done);
+    });
+    it ('should dont return the question with the wrong id', (done) => {
+        let wrongId = '5946c4caa31afd5035d30987';
+        request(app)
+            .get(`/ask/${wrongId}`)
+            .expect(404)
+            .expect(res => {
+                expect(res.body.question).toNotExist()
+            })
+            .end(done);
+    });
+    it('should not return the question with invalid id', (done) => {
+        let invalidId = '123';
+        request(app)
+            .get(`/ask/${invalidId}`)
             .expect(400)
             .expect(res => {
                 expect(res.body.question).toNotExist();

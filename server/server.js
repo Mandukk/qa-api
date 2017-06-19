@@ -28,7 +28,7 @@ app.get('/ask', (req, res) => {
         if (!questions) {
             return res.status(404).send();
         }
-        res.send(questions);
+        res.send({questions});
     }).catch(e => {
         res.status(404).send();
     })
@@ -44,7 +44,7 @@ app.get('/ask/:id', (req, res) => {
         if (!question) {
             return res.status(404).send();
         }
-        res.send(question);
+        res.status(200).send({question});
     }).catch(e => {
         res.status(404).send();
     })
