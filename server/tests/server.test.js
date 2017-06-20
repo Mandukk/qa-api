@@ -4,9 +4,11 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Question} = require('./../models/question');
-const {questions, populateQuestions} = require('./seed/seed');
+const {User} = require('./../models/user');
+const {questions, populateQuestions, users, populateUsers} = require('./seed/seed');
 
 beforeEach(populateQuestions);
+beforeEach(populateUsers);
 
 describe('POST /ask', () => {
     it('should create a new question', (done) => {
@@ -218,6 +220,37 @@ describe('PATCH /ask/:id', () => {
                 expect(res.body.question).toNotExist();
             })
             .end(done);
+    });
+});
+
+describe('POST /users', () => {
+    it('should return 200 and create a new user', (done) => {
+        let email = 'example@example.com';
+        let password = '123456';
+        let username = 'example';
+
+        request(app)
+            .post('/users')
+            .send({email, password, username})
+            .expect(200)
+            .expect(res => {
+                expect(res.headers['x-auth']).toExist();
+                expect(res.body._id).toExist();
+                expect(res.body.email).toBe(email);
+                expect(res.body.username).toBe(username);
+            })
+            .end((err, res) => {
+                if (err) {
+                    done(err);
+                }
+
+                User.findOne({email}).then(user => {
+                    expect(user.email).toBe(email);
+                    expect(user.username).toBe(username);
+                    expect(user.password).toNotBe(password);
+                    done();
+                }).catch(e => done(e));
+            });
     });
 });
 

@@ -7,6 +7,7 @@ const {ObjectID} = require('mongodb');
 
 const {mongoose} = require('./db/mongoose');
 const {Question} = require('./models/question');
+const {User} = require('./models/user');
 
 const port = process.env.PORT;
 
@@ -90,6 +91,20 @@ app.patch('/ask/:id', (req, res) => {
     }).catch(e => {
         res.send(404).send();
     })
+});
+
+//USERS ROUTE
+app.post('/users', (req, res) => {
+    let body = _.pick(req.body, ['email', 'username', 'password']);
+    let user = new User(body);
+
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then(token => {
+        res.header('x-auth', token).send(user);
+    }).catch(e => {
+        res.status(400).send();
+    });
 });
 
 module.exports = {
