@@ -54,6 +54,23 @@ userSchema.methods.generateAuthToken = function() {
     });
 };
 
+userSchema.statics.findByToken = function(token) {
+    let User = this;
+    let decoded;
+
+    try {
+        decoded = jwt.verify(token, process.env.SECRET);
+    } catch (e) {
+        return Promise.reject();
+    }
+
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    });
+}
+
 userSchema.pre('save', function(next) {
     let user = this;
 
